@@ -1,0 +1,139 @@
+---
+title: "Datos estadisticos OIJ"
+author: "Natalia Nartínez Rojas"
+date: '2022-06-19'
+output:
+  html_document:
+    theme: readable    
+    toc: true
+    toc_depth: 5
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## 
+### Paquetes de R
+
+```{r carga de paquetes, message=FALSE}
+library(DT)
+library(ggplot2)
+library(plotly)
+library(dplyr)
+library(leaflet)
+library(sf)
+library(readxl)
+library(tidyverse)
+library(ggthemes)
+
+```
+
+### Datos 
+
+```{r, message=FALSE}
+Estadisticas_OIJ <- 
+  readxl::read_excel("C:/Users/HP/Desktop/procesamiento/tarea2/tarea2/Datos_Policiales2021/estadisticaspoliciales2021.xls")
+
+Estadisticas_OIJ$Fecha <- as.Date(Estadisticas_OIJ$Fecha, format = "%Y-%m-%d")
+
+```
+
+#Desarrollo de proyecto
+## Tabla DT
+
+```{r, message=FALSE}
+# DT
+
+Estadisticas_OIJ %>%
+  dplyr::select(Delito,
+                Fecha,
+                Victima,
+                Edad,
+                Genero,
+                Provincia,
+                Canton) %>%
+  mutate(Fecha = as.Date(Fecha, format = "%d/%m/%Y")) %>%
+  datatable(
+    options = list(
+      pageLength = 15,
+      language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
+    ),
+    colnames = c(
+      # encabezados de las columnas
+      "Delito",
+      "Fecha",
+      "Víctima",
+      "Edad",
+      "Género",
+      "Provincia",
+      "Cantón"
+    )
+  )
+```
+
+
+## Gráfico cantidad de delitos por tipo de delito
+
+
+```{r}
+Cantidad_de_delito_por_tipo_delito <-
+  Estadisticas_OIJ %>%
+  count(Delito) %>%
+  ggplot(aes(x = reorder(Delito, n), y = n)) +
+  geom_bar(stat = "identity") +
+  ggtitle("Cantidad de delitos por tipo de delito") +
+  xlab("Tipo de Delito") +
+  ylab("Cantidad") +
+  coord_flip() +
+  theme_minimal()
+
+Cantidad_de_delito_por_tipo_delito %>%
+  ggplotly() %>%
+  config(locale = "es")
+```
+
+## Gráfico simple de Cantidad de Delitos por mes
+
+(lo intenté de todas las formas posibles :( ))
+
+
+## Gráfico delito por genero
+
+```{r}
+Delito_por_Genero <-
+  Estadisticas_OIJ %>%
+  ggplot(aes(x = Genero, fill = Delito)) +
+  geom_bar(position = "fill") +
+  ggtitle("Tipo de delito por Género") +
+  xlab("Género") +
+  ylab("Porcentaje") +
+  labs(fill = "Delito") +
+  theme_minimal()
+
+ggplotly(Delito_por_Genero) %>% config(locale = 'es')
+```
+
+## Gráfico delitos en San José, Alajuela, Cartago y Heredia 
+
+```{r}
+
+grafico <- filter(Estadisticas_OIJ, grepl('HEREDIA|ALAJUELA|CARTAGO|SAN JOSE', Provincia))
+
+Delitos_SanJose_Alajuela_Cartago_Heredia <-
+  ggplot(data= grafico, aes(x=Provincia)) +
+  geom_bar( ) +
+  ggtitle("Delitos San Jose Alajuela Cartago Heredia") +
+  xlab("Provincias") +
+  ylab("Cantidad de Delitos") +
+  theme_minimal()
+
+ggplotly(Delitos_SanJose_Alajuela_Cartago_Heredia) %>% config(locale = 'es')
+
+```
+
