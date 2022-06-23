@@ -1,6 +1,6 @@
 ---
-title: "Datos estadisticos OIJ"
-author: "Natalia Nartínez Rojas"
+title: "Analisis de Estadisticas Policial 2021"
+author: "yo que soy la mismisima ostia"
 date: '2022-06-19'
 output:
   html_document:
@@ -16,10 +16,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+#Tarea 2. Instrucciones
 
-
-## 
-### Paquetes de R
+## Entradas
+### Carga de paquetes de R
 
 ```{r carga de paquetes, message=FALSE}
 library(DT)
@@ -34,23 +34,23 @@ library(ggthemes)
 
 ```
 
-### Datos 
+### Carga de Datos y curacion de datos
 
 ```{r, message=FALSE}
-Estadisticas_OIJ <- 
-  readxl::read_excel("C:/Users/HP/Desktop/procesamiento/tarea2/tarea2/Datos_Policiales2021/estadisticaspoliciales2021.xls")
+Estadisticas_Policiales <- 
+  readxl::read_excel("/Users/josselingquiroz/Documents/Geoprocesamientos/estadisticaspoliciales2021.xls")
 
-Estadisticas_OIJ$Fecha <- as.Date(Estadisticas_OIJ$Fecha, format = "%Y-%m-%d")
+Estadisticas_Policiales$Fecha <- as.Date(Estadisticas_Policiales$Fecha, format = "%Y-%m-%d")
 
 ```
 
-#Desarrollo de proyecto
+#Desarrollo
 ## Tabla DT
 
 ```{r, message=FALSE}
-# DT
+# Tabla interactiva del paquete DT
 
-Estadisticas_OIJ %>%
+Estadisticas_Policiales %>%
   dplyr::select(Delito,
                 Fecha,
                 Victima,
@@ -78,11 +78,10 @@ Estadisticas_OIJ %>%
 ```
 
 
-## Gráfico cantidad de delitos por tipo de delito
-
+## Gráfico de barras simples de Cantidad de Delitos por tipo de Delito
 
 ```{r}
-Cantidad_de_delito_por_tipo_delito <-
+Cantidad_de_delito_por_tipo <-
   Estadisticas_OIJ %>%
   count(Delito) %>%
   ggplot(aes(x = reorder(Delito, n), y = n)) +
@@ -91,39 +90,40 @@ Cantidad_de_delito_por_tipo_delito <-
   xlab("Tipo de Delito") +
   ylab("Cantidad") +
   coord_flip() +
-  theme_minimal()
+  theme_hc()
 
-Cantidad_de_delito_por_tipo_delito %>%
+Cantidad_de_delito_por_tipo %>%
   ggplotly() %>%
   config(locale = "es")
 ```
 
 ## Gráfico simple de Cantidad de Delitos por mes
 
-(lo intenté de todas las formas posibles :( ))
+```{r}
+#FALTA
+```
 
-
-## Gráfico delito por genero
+## Gráfico de barras apiladas de proporción de Delitos por Género
 
 ```{r}
-Delito_por_Genero <-
-  Estadisticas_OIJ %>%
+Proporcion_de_Delito_por_Genero <-
+  Estadisticas_Policiales %>%
   ggplot(aes(x = Genero, fill = Delito)) +
   geom_bar(position = "fill") +
-  ggtitle("Tipo de delito por Género") +
+  ggtitle("Proporciones de Delito por tipo de Género") +
   xlab("Género") +
-  ylab("Porcentaje") +
+  ylab("Proporción") +
   labs(fill = "Delito") +
   theme_minimal()
 
-ggplotly(Delito_por_Genero) %>% config(locale = 'es')
+ggplotly(Proporcion_de_Delito_por_Genero) %>% config(locale = 'es')
 ```
 
-## Gráfico delitos en San José, Alajuela, Cartago y Heredia 
+## Gráfico simple de Cantidad de Delitos en San José, Alajuela, Cartago y Heredia 
 
 ```{r}
 
-grafico <- filter(Estadisticas_OIJ, grepl('HEREDIA|ALAJUELA|CARTAGO|SAN JOSE', Provincia))
+grafico <- filter(Estadisticas_Policiales, grepl('HEREDIA|ALAJUELA|CARTAGO|SAN JOSE', Provincia))
 
 Delitos_SanJose_Alajuela_Cartago_Heredia <-
   ggplot(data= grafico, aes(x=Provincia)) +
